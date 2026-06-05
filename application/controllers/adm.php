@@ -2485,14 +2485,20 @@ class Adm extends CI_Controller
 		$nilai_bobot 	= 0;
 		$total_bobot	= 0;
 
-		$examIds = $this->db->query("SELECT GROUP_CONCAT(tr_ikut_ujian.id) AS ids
+		$examIdInString = null;
+
+		$examIds = $this->db->query("SELECT tr_ikut_ujian.id AS ids
 										FROM tr_ikut_ujian
 										INNER JOIN m_siswa ON tr_ikut_ujian.id_user = m_siswa.id
 										WHERE tr_ikut_ujian.id_tes = '$uri3' ORDER BY tr_ikut_ujian.nilai DESC")->result();
-		$examIds = (array) $examIds[0];
-		$implodedExamIds = implode(',', $examIds);
+
+		foreach ($examIds as $examId) {
+			$examIdArray[] = $examId->ids;
+			$examIdInString = implode(',', $examIdArray);
+		}
+
 		$examIdsAnswers = $this->db->query("
-			SELECT tiu.id, tiu.list_jawaban FROM tr_ikut_ujian tiu WHERE tiu.id IN($implodedExamIds)
+			SELECT tiu.id, tiu.list_jawaban FROM tr_ikut_ujian tiu WHERE tiu.id IN($examIdInString)
 		")->result();
 
 		foreach ($examIdsAnswers as $row) {
