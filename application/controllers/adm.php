@@ -2479,15 +2479,13 @@ class Adm extends CI_Controller
 		$uri3 = $this->uri->segment(3);
 		$uri4 = $this->uri->segment(4);
 
-		// echo "uri3: " . $uri3 . " " . "<br>";
-
 		$jumlah_benar 	= 0;
 		$jumlah_salah 	= 0;
 		$jumlah_ragu  	= 0;
 		$nilai_bobot 	= 0;
 		$total_bobot	= 0;
 
-		$examIds = $this->db->query("SELECT tr_ikut_ujian.id AS ids
+		$examIds = $this->db->query("SELECT GROUP_CONCAT(tr_ikut_ujian.id) AS ids
 										FROM tr_ikut_ujian
 										INNER JOIN m_siswa ON tr_ikut_ujian.id_user = m_siswa.id
 										WHERE tr_ikut_ujian.id_tes = '$uri3' ORDER BY tr_ikut_ujian.nilai DESC")->result();
@@ -2496,6 +2494,7 @@ class Adm extends CI_Controller
 		$examIdsAnswers = $this->db->query("
 			SELECT tiu.id, tiu.list_jawaban FROM tr_ikut_ujian tiu WHERE tiu.id IN($implodedExamIds)
 		")->result();
+
 		foreach ($examIdsAnswers as $row) {
 			$answerList = $row->list_jawaban;
 			$idList 	= $row->id;
@@ -2506,11 +2505,6 @@ class Adm extends CI_Controller
 			foreach ($explodedAnswerList as $answer) {
 				@list($id_soal, $jawaban) = explode(':', $answer);
 				$cek_jwb = $this->db->query("SELECT bobot, jawaban FROM m_soal WHERE id = '" . $id_soal . "'")->row();
-				if (!$cek_jwb) {
-					$brokenIdSoal[] = $id_soal;
-					// echo "rowID: " . $idList . " " . "<br>";
-					continue;
-				}
 				$total_bobot = $total_bobot + $cek_jwb->bobot;
 
 				if ($cek_jwb->jawaban == $jawaban) {
@@ -2533,9 +2527,7 @@ class Adm extends CI_Controller
 			$nilai_bobot 	= 0;
 			$total_bobot	= 0;
 		}
-		// if (!empty($brokenIdSoal)) {
-		// 	echo "IN(" . implode(',', $brokenIdSoal) . ")";
-		// }
+		
 		return $this->output
 			->set_content_type('application/json')
 			->set_status_header(200)
