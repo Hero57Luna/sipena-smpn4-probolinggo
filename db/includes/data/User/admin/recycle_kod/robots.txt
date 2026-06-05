@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /library
+Disallow: /main
+Disallow: /theme
+Disallow: /files
+Disallow: /users
+Disallow: /procs
+Disallow: /userfiles
+
+
+
